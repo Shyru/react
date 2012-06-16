@@ -15,9 +15,16 @@ class Server extends EventEmitter implements ServerInterface
         $this->loop = $loop;
     }
 
-    public function listen($port, $host = '127.0.0.1')
+    public function listen($port, $host = '127.0.0.1', array $sslOptions = array())
     {
-        $this->master = stream_socket_server("tcp://$host:$port", $errno, $errstr);
+        if ($sslOptions) {
+            $context = stream_context_create(array("ssl" => $sslOptions));
+            $this->master = stream_socket_server("ssl://$host:$port", $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
+        }
+        else {
+            $this->master = stream_socket_server("tcp://$host:$port", $errno, $errstr);
+
+        }
         if (false === $this->master) {
             throw new ConnectionException($errstr, $errno);
         }

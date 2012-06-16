@@ -43,6 +43,35 @@ class ServerTest extends TestCase
     }
 
     /**
+     * @covers React\Socket\Server::listen
+     */
+    public function testSSL()
+    {
+        $cert=file_get_contents(__DIR__.'/certificate.pem');
+        $sslOptions=array(
+            'local_cert' => __DIR__.'/certificate.pem',
+            'allow_self_signed' => true,
+            'verify_peer' => false
+        );
+        $sslServer=new Server($this->loop);
+
+        $sslServer->listen(4096,'127.0.0.1',$sslOptions);
+
+        //this currently does not work due to a error enabling crypto :-(
+        //$client1 = stream_socket_client('ssl://localhost:4096');
+        //fwrite($client1,"Encrypted Hello World!");
+
+        //if you want to test this with testssl.php uncomment this line to have the server listen some time
+        //to be able to start testssl.php
+        //sleep(20);
+
+        //$this->server->on('connect', $this->expectCallableOnce());
+
+        $this->loop->tick();
+
+    }
+
+    /**
      * @covers React\EventLoop\StreamSelectLoop::tick
      * @covers React\Socket\Server::handleConnection
      * @covers React\Socket\Server::createConnection
